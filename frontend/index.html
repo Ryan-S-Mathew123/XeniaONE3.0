@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Horizon Hotel — Digital Concierge</title>
+    <meta name="description" content="AI-powered digital concierge for Grand Horizon Hotel & Spa. Get instant help with room service, bookings, and hotel information.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a96e;
+            --gold-light: #e8d5a8;
+            --dark-bg: #0c0f14;
+            --dark-surface: #161a23;
+            --dark-card: #1c2130;
+            --dark-border: #2a2f3e;
+            --text-primary: #f0ece4;
+            --text-secondary: #8a8e99;
+            --accent-gradient: linear-gradient(135deg, #c9a96e 0%, #e8d5a8 50%, #c9a96e 100%);
+            --glass: rgba(28, 33, 48, 0.65);
+            --glass-border: rgba(201, 169, 110, 0.15);
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            height: 100vh; display: flex; overflow: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 280px; padding: 30px 24px;
+            background: linear-gradient(180deg, rgba(12,15,20,0.95), rgba(12,15,20,0.85)),
+                url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: space-between;
+            border-right: 1px solid var(--dark-border);
+            flex-shrink: 0;
+        }
+        .brand { margin-bottom: 40px; }
+        .brand-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+        .brand h1 {
+            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600;
+            background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1.3;
+        }
+        .brand p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; letter-spacing: 1.5px; text-transform: uppercase; }
+        .nav-item {
+            padding: 12px 16px; margin: 4px 0; border-radius: 10px; cursor: pointer;
+            font-size: 14px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+            color: var(--text-secondary);
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(201,169,110,0.1); color: var(--gold-light); }
+        .sidebar-info { border-top: 1px solid var(--dark-border); padding-top: 20px; }
+        .sidebar-info .info-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; color: var(--text-secondary); }
+        .sidebar-info .info-row span:last-child { color: var(--gold-light); font-weight: 500; }
+        .sidebar-footer { font-size: 11px; color: var(--text-secondary); text-align: center; margin-top: 16px; opacity: 0.6; }
+
+        /* ── MAIN ── */
+        .main { flex: 1; display: flex; flex-direction: column; background: var(--dark-bg); position: relative; }
+
+        /* ── HEADER ── */
+        .header {
+            padding: 18px 28px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--dark-surface); border-bottom: 1px solid var(--dark-border);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-left .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+        .header-left h2 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; }
+        .header-left span { font-size: 13px; color: var(--text-secondary); }
+        .room-badge {
+            background: rgba(201,169,110,0.15); border: 1px solid var(--glass-border);
+            padding: 6px 14px; border-radius: 20px; font-size: 12px; color: var(--gold-light); font-weight: 500;
+        }
+        .hamburger { display: none; background: none; border: none; color: var(--text-primary); font-size: 22px; cursor: pointer; }
+
+        /* ── CHAT ── */
+        #chat-box {
+            flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+            scroll-behavior: smooth;
+        }
+        #chat-box::-webkit-scrollbar { width: 6px; }
+        #chat-box::-webkit-scrollbar-thumb { background: var(--dark-border); border-radius: 10px; }
+
+        .msg {
+            max-width: 72%; padding: 14px 18px; border-radius: 18px; line-height: 1.65;
+            font-size: 14px; animation: msgIn 0.3s ease; white-space: pre-wrap; word-wrap: break-word;
+        }
+        .msg.user {
+            background: linear-gradient(135deg, #c9a96e, #b8944e); color: #0c0f14;
+            margin-left: auto; border-bottom-right-radius: 4px; font-weight: 500;
+        }
+        .msg.bot {
+            background: var(--dark-card); color: var(--text-primary);
+            border: 1px solid var(--dark-border); border-bottom-left-radius: 4px;
+        }
+        .msg.bot .service-badge {
+            display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 12px;
+            font-size: 11px; background: rgba(74,222,128,0.15); color: #4ade80; font-weight: 600;
+        }
+
+        /* TYPING */
+        .typing-indicator {
+            display: none; align-items: center; gap: 4px; padding: 14px 18px;
+            background: var(--dark-card); border: 1px solid var(--dark-border);
+            border-radius: 18px; border-bottom-left-radius: 4px; max-width: 80px;
+        }
+        .typing-indicator.visible { display: flex; }
+        .typing-dot {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--gold);
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* ── QUICK ACTIONS ── */
+        .quick-actions { padding: 0 24px 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .quick-btn {
+            padding: 8px 16px; border: 1px solid var(--dark-border); border-radius: 20px;
+            background: var(--dark-surface); color: var(--text-secondary); font-size: 13px;
+            cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .quick-btn:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(201,169,110,0.08); }
+
+        /* ── INPUT ── */
+        .input-area {
+            display: flex; padding: 16px 24px; gap: 12px;
+            background: var(--dark-surface); border-top: 1px solid var(--dark-border);
+        }
+        #user-input {
+            flex: 1; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--dark-border);
+            background: var(--dark-bg); color: var(--text-primary); font-size: 14px;
+            font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
+        }
+        #user-input:focus { border-color: var(--gold); }
+        #user-input::placeholder { color: var(--text-secondary); }
+        .send-btn {
+            padding: 14px 24px; border: none; border-radius: 12px; cursor: pointer;
+            font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+            background: var(--accent-gradient); color: #0c0f14; transition: all 0.2s;
+        }
+        .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,169,110,0.3); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* ── ROOM MODAL ── */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center; z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal {
+            background: var(--dark-card); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 40px; max-width: 420px; width: 90%;
+            box-shadow: var(--shadow); text-align: center;
+        }
+        .modal h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+        .modal p { color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; }
+        .modal input {
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--dark-border);
+            background: var(--dark-bg); color: var(--text-primary); font-size: 15px;
+            text-align: center; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 12px;
+        }
+        .modal input:focus { border-color: var(--gold); }
+        .modal .modal-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            background: var(--accent-gradient); color: #0c0f14; font-size: 15px;
+            font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 8px;
+        }
+        .modal .skip-btn {
+            background: none; border: none; color: var(--text-secondary); font-size: 13px;
+            cursor: pointer; margin-top: 16px; font-family: 'Inter', sans-serif;
+        }
+        .modal .skip-btn:hover { color: var(--gold-light); }
+
+        /* ── ANIMATIONS ── */
+        @keyframes msgIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        @keyframes typingBounce { 0%,80%,100% { transform: scale(0.6); opacity:0.4; } 40% { transform: scale(1); opacity:1; } }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -300px; top: 0; bottom: 0; z-index: 1000; transition: left 0.3s; }
+            .sidebar.open { left: 0; }
+            .hamburger { display: block; }
+            .msg { max-width: 88%; }
+            .quick-actions { gap: 6px; }
+            .quick-btn { font-size: 12px; padding: 7px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ROOM MODAL -->
+<div class="modal-overlay" id="room-modal">
+    <div class="modal">
+        <div style="font-size:40px;margin-bottom:16px;">🏨</div>
+        <h2>Welcome, Guest</h2>
+        <p>Please enter your room number for personalized service</p>
+        <input type="text" id="room-input" placeholder="e.g. 405" maxlength="10" autocomplete="off">
+        <input type="text" id="name-input" placeholder="Your name (optional)" maxlength="50" autocomplete="off">
+        <button class="modal-btn" onclick="startSession()">Continue</button>
+        <button class="skip-btn" onclick="startSession()">Skip for now</button>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div>
+        <div class="brand">
+            <span class="brand-icon">✦</span>
+            <h1 id="sidebar-hotel-name">Grand Horizon<br>Hotel & Spa</h1>
+            <p id="sidebar-tagline">Digital Concierge</p>
+        </div>
+        <div class="nav-item active">💬 Chat</div>
+    </div>
+    <div>
+        <div class="sidebar-info" id="sidebar-info">
+            <div class="info-row"><span>Check-in</span><span id="info-checkin">—</span></div>
+            <div class="info-row"><span>Check-out</span><span id="info-checkout">—</span></div>
+            <div class="info-row"><span>Front Desk</span><span>24/7</span></div>
+        </div>
+        <div class="sidebar-footer">Powered by AI Concierge</div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="header">
+        <div class="header-left">
+            <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+            <div class="status-dot"></div>
+            <div>
+                <h2>Concierge</h2>
+                <span>Online — Ready to assist</span>
+            </div>
+        </div>
+        <div class="room-badge" id="room-badge" style="display:none;">Room —</div>
+    </div>
+
+    <div id="chat-box">
+        <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    </div>
+
+    <div class="quick-actions" id="quick-actions">
+        <button class="quick-btn" onclick="quickSend('What time is breakfast?')">🍳 Breakfast</button>
+        <button class="quick-btn" onclick="quickSend('What is the WiFi password?')">📶 WiFi</button>
+        <button class="quick-btn" onclick="quickSend('What are the pool timings?')">🏊 Pool</button>
+        <button class="quick-btn" onclick="quickSend('I need fresh towels')">🛎️ Towels</button>
+        <button class="quick-btn" onclick="quickSend('Book a taxi for me')">🚖 Taxi</button>
+        <button class="quick-btn" onclick="quickSend('Tell me about the spa')">💆 Spa</button>
+    </div>
+
+    <div class="input-area">
+        <input id="user-input" placeholder="Ask anything about your stay..." autocomplete="off">
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+const API = window.location.origin;
+let sessionId = "";
+let roomNumber = "";
+let guestName = "";
+let isSending = false;
+
+// ── Session ──
+async function startSession() {
+    roomNumber = document.getElementById("room-input").value.trim();
+    guestName = document.getElementById("name-input").value.trim();
+    document.getElementById("room-modal").classList.add("hidden");
+
+    if (roomNumber) {
+        document.getElementById("room-badge").style.display = "block";
+        document.getElementById("room-badge").textContent = "Room " + roomNumber;
+    }
+
+    try {
+        const res = await fetch(API + "/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ room_number: roomNumber, guest_name: guestName })
+        });
+        const data = await res.json();
+        sessionId = data.session_id;
+    } catch (e) { console.error("Session error:", e); }
+
+    const greeting = guestName ? `Welcome, ${guestName}!` : "Welcome to our hotel!";
+    addMessage(`✦ ${greeting}\n\nI'm your digital concierge. I can help you with:\n\n• Restaurant hours & menus\n• Room service & housekeeping\n• Spa, pool & gym information\n• Taxi & transport bookings\n• WiFi, check-in/out & hotel policies\n\nHow may I assist you today?`, "bot");
+}
+
+// ── Messages ──
+function addMessage(text, type, serviceTag) {
+    const chatBox = document.getElementById("chat-box");
+    const typing = document.getElementById("typing");
+    const div = document.createElement("div");
+    div.classList.add("msg", type);
+    div.textContent = text;
+    if (serviceTag) {
+        const badge = document.createElement("div");
+        badge.className = "service-badge";
+        badge.textContent = "✓ " + serviceTag + " request logged";
+        div.appendChild(badge);
+    }
+    chatBox.insertBefore(div, typing);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function showTyping(show) {
+    document.getElementById("typing").classList.toggle("visible", show);
+    if (show) {
+        const chatBox = document.getElementById("chat-box");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+async function sendMessage() {
+    if (isSending) return;
+    const input = document.getElementById("user-input");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    addMessage(msg, "user");
+    input.value = "";
+    isSending = true;
+    document.getElementById("send-btn").disabled = true;
+    showTyping(true);
+
+    try {
+        const res = await fetch(API + "/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: msg, session_id: sessionId, room_number: roomNumber })
+        });
+        const data = await res.json();
+        showTyping(false);
+        addMessage(data.reply, "bot", data.service_request);
+    } catch (err) {
+        showTyping(false);
+        addMessage("I apologize — I'm having trouble connecting. Please contact the front desk for assistance.", "bot");
+        console.error(err);
+    } finally {
+        isSending = false;
+        document.getElementById("send-btn").disabled = false;
+        input.focus();
+    }
+}
+
+function quickSend(text) {
+    document.getElementById("user-input").value = text;
+    sendMessage();
+}
+
+// ── Keyboard ──
+document.getElementById("user-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
+});
+
+// ── Load hotel info into sidebar ──
+async function loadHotelInfo() {
+    try {
+        const res = await fetch(API + "/knowledge/public");
+        const data = await res.json();
+        if (data.hotel_name) {
+            document.getElementById("sidebar-hotel-name").innerHTML = data.hotel_name.replace("&", "&amp;");
+            document.title = data.hotel_name + " — Digital Concierge";
+        }
+        if (data.check_in_time) document.getElementById("info-checkin").textContent = data.check_in_time;
+        if (data.check_out_time) document.getElementById("info-checkout").textContent = data.check_out_time;
+    } catch (e) { console.log("Could not load hotel info"); }
+}
+
+window.onload = loadHotelInfo;
+</script>
+</body>
+</html>

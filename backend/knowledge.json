@@ -1,0 +1,82 @@
+{
+  "hotel_name": "Grand Horizon Hotel & Spa",
+  "hotel_tagline": "Where Luxury Meets Comfort",
+  "check_in_time": "14:00",
+  "check_out_time": "11:00",
+  "breakfast": {
+    "time": "7:00 AM - 10:30 AM",
+    "location": "The Grand Pavilion - Ground Floor",
+    "type": "International Buffet"
+  },
+  "restaurants": [
+    {
+      "name": "The Grand Pavilion",
+      "cuisine": "International Buffet",
+      "hours": "7:00 AM - 10:30 PM",
+      "location": "Ground Floor"
+    },
+    {
+      "name": "Sakura",
+      "cuisine": "Japanese & Asian Fusion",
+      "hours": "12:00 PM - 10:00 PM",
+      "location": "2nd Floor"
+    },
+    {
+      "name": "The Terrace Lounge",
+      "cuisine": "Bar & Light Bites",
+      "hours": "4:00 PM - 12:00 AM",
+      "location": "Rooftop"
+    }
+  ],
+  "wifi": {
+    "network": "GrandHorizon-Guest",
+    "password": "Welcome2024"
+  },
+  "pool": {
+    "hours": "6:00 AM - 9:00 PM",
+    "location": "Rooftop - 15th Floor"
+  },
+  "spa": {
+    "hours": "9:00 AM - 9:00 PM",
+    "location": "3rd Floor",
+    "services": "Swedish Massage, Deep Tissue, Facial, Sauna, Steam Room, Aromatherapy"
+  },
+  "gym": {
+    "hours": "Open 24 Hours",
+    "location": "4th Floor"
+  },
+  "parking": {
+    "type": "Valet & Self-Parking Available",
+    "rate": "Complimentary for hotel guests"
+  },
+  "front_desk": {
+    "phone": "+91-9876-543210",
+    "available": "24/7"
+  },
+  "emergency": {
+    "fire_assembly": "Hotel Main Entrance - Ground Floor",
+    "nearest_hospital": "City General Hospital - 2 km",
+    "emergency_number": "112"
+  },
+  "policies": {
+    "smoking": "Non-smoking property. Designated smoking area at the Ground Floor terrace.",
+    "pets": "Pet-friendly rooms available on request. Additional surcharge of ₹1500/night applies.",
+    "cancellation": "Free cancellation up to 24 hours before check-in. Late cancellations are charged one night's rate."
+  },
+  "services": [
+    "24/7 Room Service",
+    "Laundry & Dry Cleaning",
+    "Airport Shuttle",
+    "Concierge Desk",
+    "Currency Exchange",
+    "Business Center",
+    "Baby Sitting (on request)",
+    "Doctor on Call"
+  ],
+  "nearby_attractions": [
+    { "name": "City Heritage Museum", "distance": "1.5 km" },
+    { "name": "Central Market & Bazaar", "distance": "0.8 km" },
+    { "name": "Royal Heritage Fort", "distance": "3 km" },
+    { "name": "Botanical Garden", "distance": "2 km" }
+  ]
+}

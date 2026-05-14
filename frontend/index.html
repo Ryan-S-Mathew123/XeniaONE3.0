@@ -3,260 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Horizon Hotel — Digital Concierge</title>
-    <meta name="description" content="AI-powered digital concierge for Grand Horizon Hotel & Spa. Get instant help with room service, bookings, and hotel information.">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gold: #c9a96e;
-            --gold-light: #e8d5a8;
-            --dark-bg: #0c0f14;
-            --dark-surface: #161a23;
-            --dark-card: #1c2130;
-            --dark-border: #2a2f3e;
-            --text-primary: #f0ece4;
-            --text-secondary: #8a8e99;
-            --accent-gradient: linear-gradient(135deg, #c9a96e 0%, #e8d5a8 50%, #c9a96e 100%);
-            --glass: rgba(28, 33, 48, 0.65);
-            --glass-border: rgba(201, 169, 110, 0.15);
-            --shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            height: 100vh; display: flex; overflow: hidden;
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: 280px; padding: 30px 24px;
-            background: linear-gradient(180deg, rgba(12,15,20,0.95), rgba(12,15,20,0.85)),
-                url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop');
-            background-size: cover; background-position: center;
-            display: flex; flex-direction: column; justify-content: space-between;
-            border-right: 1px solid var(--dark-border);
-            flex-shrink: 0;
-        }
-        .brand { margin-bottom: 40px; }
-        .brand-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-        .brand h1 {
-            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600;
-            background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            line-height: 1.3;
-        }
-        .brand p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; letter-spacing: 1.5px; text-transform: uppercase; }
-        .nav-item {
-            padding: 12px 16px; margin: 4px 0; border-radius: 10px; cursor: pointer;
-            font-size: 14px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; gap: 10px;
-            color: var(--text-secondary);
-        }
-        .nav-item:hover, .nav-item.active { background: rgba(201,169,110,0.1); color: var(--gold-light); }
-        .sidebar-info { border-top: 1px solid var(--dark-border); padding-top: 20px; }
-        .sidebar-info .info-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; color: var(--text-secondary); }
-        .sidebar-info .info-row span:last-child { color: var(--gold-light); font-weight: 500; }
-        .sidebar-footer { font-size: 11px; color: var(--text-secondary); text-align: center; margin-top: 16px; opacity: 0.6; }
-
-        /* ── MAIN ── */
-        .main { flex: 1; display: flex; flex-direction: column; background: var(--dark-bg); position: relative; }
-
-        /* ── HEADER ── */
-        .header {
-            padding: 18px 28px; display: flex; align-items: center; justify-content: space-between;
-            background: var(--dark-surface); border-bottom: 1px solid var(--dark-border);
-        }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-left .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
-        .header-left h2 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; }
-        .header-left span { font-size: 13px; color: var(--text-secondary); }
-        .room-badge {
-            background: rgba(201,169,110,0.15); border: 1px solid var(--glass-border);
-            padding: 6px 14px; border-radius: 20px; font-size: 12px; color: var(--gold-light); font-weight: 500;
-        }
-        .hamburger { display: none; background: none; border: none; color: var(--text-primary); font-size: 22px; cursor: pointer; }
-
-        /* ── CHAT ── */
-        #chat-box {
-            flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
-            scroll-behavior: smooth;
-        }
-        #chat-box::-webkit-scrollbar { width: 6px; }
-        #chat-box::-webkit-scrollbar-thumb { background: var(--dark-border); border-radius: 10px; }
-
-        .msg {
-            max-width: 72%; padding: 14px 18px; border-radius: 18px; line-height: 1.65;
-            font-size: 14px; animation: msgIn 0.3s ease; white-space: pre-wrap; word-wrap: break-word;
-        }
-        .msg.user {
-            background: linear-gradient(135deg, #c9a96e, #b8944e); color: #0c0f14;
-            margin-left: auto; border-bottom-right-radius: 4px; font-weight: 500;
-        }
-        .msg.bot {
-            background: var(--dark-card); color: var(--text-primary);
-            border: 1px solid var(--dark-border); border-bottom-left-radius: 4px;
-        }
-        .msg.bot .service-badge {
-            display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 12px;
-            font-size: 11px; background: rgba(74,222,128,0.15); color: #4ade80; font-weight: 600;
-        }
-
-        /* TYPING */
-        .typing-indicator {
-            display: none; align-items: center; gap: 4px; padding: 14px 18px;
-            background: var(--dark-card); border: 1px solid var(--dark-border);
-            border-radius: 18px; border-bottom-left-radius: 4px; max-width: 80px;
-        }
-        .typing-indicator.visible { display: flex; }
-        .typing-dot {
-            width: 7px; height: 7px; border-radius: 50%; background: var(--gold);
-            animation: typingBounce 1.4s infinite ease-in-out;
-        }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        /* ── QUICK ACTIONS ── */
-        .quick-actions { padding: 0 24px 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .quick-btn {
-            padding: 8px 16px; border: 1px solid var(--dark-border); border-radius: 20px;
-            background: var(--dark-surface); color: var(--text-secondary); font-size: 13px;
-            cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
-        }
-        .quick-btn:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(201,169,110,0.08); }
-
-        /* ── INPUT ── */
-        .input-area {
-            display: flex; padding: 16px 24px; gap: 12px;
-            background: var(--dark-surface); border-top: 1px solid var(--dark-border);
-        }
-        #user-input {
-            flex: 1; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--dark-border);
-            background: var(--dark-bg); color: var(--text-primary); font-size: 14px;
-            font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
-        }
-        #user-input:focus { border-color: var(--gold); }
-        #user-input::placeholder { color: var(--text-secondary); }
-        .send-btn {
-            padding: 14px 24px; border: none; border-radius: 12px; cursor: pointer;
-            font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
-            background: var(--accent-gradient); color: #0c0f14; transition: all 0.2s;
-        }
-        .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,169,110,0.3); }
-        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        /* ── ROOM MODAL ── */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-            display: flex; align-items: center; justify-content: center; z-index: 9999;
-            animation: fadeIn 0.3s ease;
-        }
-        .modal-overlay.hidden { display: none; }
-        .modal {
-            background: var(--dark-card); border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 40px; max-width: 420px; width: 90%;
-            box-shadow: var(--shadow); text-align: center;
-        }
-        .modal h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
-        .modal p { color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; }
-        .modal input {
-            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--dark-border);
-            background: var(--dark-bg); color: var(--text-primary); font-size: 15px;
-            text-align: center; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 12px;
-        }
-        .modal input:focus { border-color: var(--gold); }
-        .modal .modal-btn {
-            width: 100%; padding: 14px; border: none; border-radius: 12px;
-            background: var(--accent-gradient); color: #0c0f14; font-size: 15px;
-            font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 8px;
-        }
-        .modal .skip-btn {
-            background: none; border: none; color: var(--text-secondary); font-size: 13px;
-            cursor: pointer; margin-top: 16px; font-family: 'Inter', sans-serif;
-        }
-        .modal .skip-btn:hover { color: var(--gold-light); }
-
-        /* ── ANIMATIONS ── */
-        @keyframes msgIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-        @keyframes typingBounce { 0%,80%,100% { transform: scale(0.6); opacity:0.4; } 40% { transform: scale(1); opacity:1; } }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -300px; top: 0; bottom: 0; z-index: 1000; transition: left 0.3s; }
-            .sidebar.open { left: 0; }
-            .hamburger { display: block; }
-            .msg { max-width: 88%; }
-            .quick-actions { gap: 6px; }
-            .quick-btn { font-size: 12px; padding: 7px 12px; }
-        }
-    </style>
+    <title>Grand Horizon Hotel & Spa</title>
+    <meta name="description" content="Experience luxury at Grand Horizon Hotel & Spa. World-class amenities, fine dining, and personalized service.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ROOM MODAL -->
-<div class="modal-overlay" id="room-modal">
-    <div class="modal">
-        <div style="font-size:40px;margin-bottom:16px;">🏨</div>
-        <h2>Welcome, Guest</h2>
+<!-- NAVIGATION -->
+<nav class="nav" id="main-nav">
+    <div class="nav-inner">
+        <a href="#" class="nav-brand">
+            <span class="nav-logo">&#10022;</span>
+            <span class="nav-name" id="nav-hotel-name">Grand Horizon</span>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="#about">About</a>
+            <a href="#amenities">Amenities</a>
+            <a href="#gallery">Gallery</a>
+            <a href="#info">Details</a>
+        </div>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <p class="hero-tag" id="hero-tagline">Where Luxury Meets Comfort</p>
+        <h1 class="hero-title" id="hero-hotel-name">Grand Horizon<br>Hotel &amp; Spa</h1>
+        <p class="hero-sub">Experience world-class hospitality with personalized service and stunning amenities</p>
+        <div class="hero-actions">
+            <a href="#amenities" class="btn-hero">Explore Amenities</a>
+            <button class="btn-hero-outline" onclick="openChat()">Chat with Concierge</button>
+        </div>
+        <div class="hero-stats" id="hero-stats">
+            <div class="hero-stat"><span class="hero-stat-num" id="h-checkin">2:00 PM</span><span class="hero-stat-label">Check-in</span></div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat"><span class="hero-stat-num" id="h-checkout">11:00 AM</span><span class="hero-stat-label">Check-out</span></div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat"><span class="hero-stat-num">24/7</span><span class="hero-stat-label">Front Desk</span></div>
+        </div>
+    </div>
+    <div class="hero-scroll">
+        <a href="#about"><span>&darr;</span></a>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-tag">Welcome</p>
+            <h2 class="section-title">A Haven of Elegance</h2>
+            <p class="section-desc">Our hotel blends timeless luxury with modern comfort, offering an unforgettable experience for every guest. From the moment you arrive, our dedicated team ensures your stay is nothing short of exceptional.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Fine Dining</h3>
+                <p id="feat-dining">International cuisine prepared by world-class chefs in our signature restaurants</p>
+            </div>
+            <div class="feature-card">
+                <h3>Wellness &amp; Spa</h3>
+                <p id="feat-spa">Rejuvenate with our premium spa treatments and wellness programs</p>
+            </div>
+            <div class="feature-card">
+                <h3>Infinity Pool</h3>
+                <p id="feat-pool">Take a dip in our stunning pool with panoramic views</p>
+            </div>
+            <div class="feature-card">
+                <h3>Fitness Center</h3>
+                <p id="feat-gym">State-of-the-art equipment available around the clock</p>
+            </div>
+            <div class="feature-card">
+                <h3>Parking</h3>
+                <p id="feat-parking">Convenient valet and self-parking options for all guests</p>
+            </div>
+            <div class="feature-card">
+                <h3>High-Speed WiFi</h3>
+                <p id="feat-wifi">Complimentary high-speed internet throughout the property</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DINING -->
+<section class="section" id="dining" style="display:none;">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-tag">Culinary</p>
+            <h2 class="section-title">Exceptional Dining</h2>
+        </div>
+        <div class="dining-grid" id="dining-grid"></div>
+    </div>
+</section>
+
+<!-- AMENITIES -->
+<section class="section section-dark" id="amenities">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-tag">Amenities</p>
+            <h2 class="section-title">Everything You Need</h2>
+        </div>
+        <div class="amenities-grid" id="amenities-grid"></div>
+    </div>
+</section>
+
+<!-- GALLERY -->
+<section class="section" id="gallery">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-tag">Gallery</p>
+            <h2 class="section-title">Moments &amp; Spaces</h2>
+        </div>
+    </div>
+    <div class="gallery-track-wrap">
+        <div class="gallery-track" id="gallery-track">
+            <div class="gallery-placeholder" id="gallery-placeholder">
+                <p>Photos coming soon</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- INFO -->
+<section class="section section-dark" id="info">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-tag">Guest Information</p>
+            <h2 class="section-title">At Your Service</h2>
+        </div>
+        <div class="info-grid" id="info-grid"></div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-top">
+            <div class="footer-col footer-brand-col">
+                <div class="footer-brand">
+                    <span class="nav-logo">&#10022;</span>
+                    <span id="footer-name">Grand Horizon Hotel &amp; Spa</span>
+                </div>
+                <p class="footer-tagline" id="footer-tagline">Where Luxury Meets Comfort</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="#about">About</a>
+                <a href="#amenities">Amenities</a>
+                <a href="#gallery">Gallery</a>
+                <a href="#info">Guest Info</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <p id="footer-phone"></p>
+                <p id="footer-availability"></p>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <div id="footer-social"></div>
+                <div id="footer-website"></div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copy">Powered by XeniaOne AI Concierge</p>
+        </div>
+    </div>
+</footer>
+
+<!-- CHATBOT FAB -->
+<button class="chat-fab" id="chat-fab" onclick="openChat()" aria-label="Open Concierge Chat">
+    <svg class="chat-fab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="chat-fab-pulse"></span>
+</button>
+
+<!-- CHATBOT OVERLAY -->
+<div class="chat-overlay hidden" id="chat-overlay">
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="chat-avatar">&#10022;</div>
+                <div>
+                    <h3 id="chat-title">Concierge</h3>
+                    <span class="chat-status"><span class="status-dot"></span> Online</span>
+                </div>
+            </div>
+            <button class="chat-close" id="chat-close-btn" aria-label="Close chat">&times;</button>
+        </div>
+        <div class="chat-room-bar" id="chat-room-bar">
+            <span id="room-badge-text">No room set</span>
+            <button class="room-change-btn" onclick="showRoomPrompt()">Set Room</button>
+        </div>
+        <div class="chat-messages" id="chat-box">
+            <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+        </div>
+        <div class="chat-quick" id="quick-actions">
+            <button class="quick-btn" onclick="quickSend('What time is breakfast?')">Breakfast</button>
+            <button class="quick-btn" onclick="quickSend('WiFi password?')">WiFi</button>
+            <button class="quick-btn" onclick="quickSend('Pool timings?')">Pool</button>
+            <button class="quick-btn" onclick="quickSend('Tell me about the spa')">Spa</button>
+            <button class="quick-btn" onclick="quickSend('I need fresh towels')">Towels</button>
+            <button class="quick-btn" onclick="quickSend('Book a taxi')">Taxi</button>
+        </div>
+        <div class="chat-input-area">
+            <input id="user-input" placeholder="Ask anything about your stay..." autocomplete="off">
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">&rarr;</button>
+        </div>
+    </div>
+</div>
+
+<!-- ROOM PROMPT MODAL -->
+<div class="modal-overlay hidden" id="room-modal">
+    <div class="modal-card">
+        <h2>Your Room Number</h2>
         <p>Please enter your room number for personalized service</p>
         <input type="text" id="room-input" placeholder="e.g. 405" maxlength="10" autocomplete="off">
         <input type="text" id="name-input" placeholder="Your name (optional)" maxlength="50" autocomplete="off">
-        <button class="modal-btn" onclick="startSession()">Continue</button>
-        <button class="skip-btn" onclick="startSession()">Skip for now</button>
-    </div>
-</div>
-
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-    <div>
-        <div class="brand">
-            <span class="brand-icon">✦</span>
-            <h1 id="sidebar-hotel-name">Grand Horizon<br>Hotel & Spa</h1>
-            <p id="sidebar-tagline">Digital Concierge</p>
-        </div>
-        <div class="nav-item active">💬 Chat</div>
-    </div>
-    <div>
-        <div class="sidebar-info" id="sidebar-info">
-            <div class="info-row"><span>Check-in</span><span id="info-checkin">—</span></div>
-            <div class="info-row"><span>Check-out</span><span id="info-checkout">—</span></div>
-            <div class="info-row"><span>Front Desk</span><span>24/7</span></div>
-        </div>
-        <div class="sidebar-footer">Powered by AI Concierge</div>
-    </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-    <div class="header">
-        <div class="header-left">
-            <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-            <div class="status-dot"></div>
-            <div>
-                <h2>Concierge</h2>
-                <span>Online — Ready to assist</span>
-            </div>
-        </div>
-        <div class="room-badge" id="room-badge" style="display:none;">Room —</div>
-    </div>
-
-    <div id="chat-box">
-        <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
-    </div>
-
-    <div class="quick-actions" id="quick-actions">
-        <button class="quick-btn" onclick="quickSend('What time is breakfast?')">🍳 Breakfast</button>
-        <button class="quick-btn" onclick="quickSend('What is the WiFi password?')">📶 WiFi</button>
-        <button class="quick-btn" onclick="quickSend('What are the pool timings?')">🏊 Pool</button>
-        <button class="quick-btn" onclick="quickSend('I need fresh towels')">🛎️ Towels</button>
-        <button class="quick-btn" onclick="quickSend('Book a taxi for me')">🚖 Taxi</button>
-        <button class="quick-btn" onclick="quickSend('Tell me about the spa')">💆 Spa</button>
-    </div>
-
-    <div class="input-area">
-        <input id="user-input" placeholder="Ask anything about your stay..." autocomplete="off">
-        <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+        <button class="modal-btn" onclick="confirmRoom()">Continue</button>
+        <button class="modal-skip" onclick="skipRoom()">Skip for now</button>
     </div>
 </div>
 
@@ -266,18 +235,63 @@ let sessionId = "";
 let roomNumber = "";
 let guestName = "";
 let isSending = false;
+let chatOpen = false;
+let chatInitialized = false;
 
-// ── Session ──
-async function startSession() {
+// NAV SCROLL
+window.addEventListener("scroll", () => {
+    document.getElementById("main-nav").classList.toggle("scrolled", window.scrollY > 60);
+});
+document.getElementById("nav-toggle").addEventListener("click", () => {
+    document.getElementById("nav-links").classList.toggle("open");
+});
+document.querySelectorAll(".nav-links a").forEach(a => {
+    a.addEventListener("click", () => document.getElementById("nav-links").classList.remove("open"));
+});
+
+// CHAT OPEN / CLOSE
+function openChat() {
+    document.getElementById("chat-overlay").classList.remove("hidden");
+    document.getElementById("chat-fab").classList.add("fab-hidden");
+    chatOpen = true;
+    if (!chatInitialized) {
+        chatInitialized = true;
+        showRoomPrompt();
+    }
+    document.getElementById("user-input").focus();
+}
+function closeChat() {
+    document.getElementById("chat-overlay").classList.add("hidden");
+    document.getElementById("chat-fab").classList.remove("fab-hidden");
+    chatOpen = false;
+}
+document.getElementById("chat-close-btn").addEventListener("click", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeChat();
+});
+
+// ROOM
+function showRoomPrompt() {
+    document.getElementById("room-modal").classList.remove("hidden");
+}
+function confirmRoom() {
     roomNumber = document.getElementById("room-input").value.trim();
     guestName = document.getElementById("name-input").value.trim();
     document.getElementById("room-modal").classList.add("hidden");
+    updateRoomBadge();
+    initSession();
+}
+function skipRoom() {
+    document.getElementById("room-modal").classList.add("hidden");
+    initSession();
+}
+function updateRoomBadge() {
+    document.getElementById("room-badge-text").textContent = roomNumber ? "Room " + roomNumber : "No room set";
+}
 
-    if (roomNumber) {
-        document.getElementById("room-badge").style.display = "block";
-        document.getElementById("room-badge").textContent = "Room " + roomNumber;
-    }
-
+// SESSION
+async function initSession() {
     try {
         const res = await fetch(API + "/session", {
             method: "POST",
@@ -288,11 +302,11 @@ async function startSession() {
         sessionId = data.session_id;
     } catch (e) { console.error("Session error:", e); }
 
-    const greeting = guestName ? `Welcome, ${guestName}!` : "Welcome to our hotel!";
-    addMessage(`✦ ${greeting}\n\nI'm your digital concierge. I can help you with:\n\n• Restaurant hours & menus\n• Room service & housekeeping\n• Spa, pool & gym information\n• Taxi & transport bookings\n• WiFi, check-in/out & hotel policies\n\nHow may I assist you today?`, "bot");
+    const greeting = guestName ? ("Welcome, " + guestName + "!") : "Welcome!";
+    addMessage(greeting + "\n\nI'm your digital concierge. I can help you with:\n\n- Restaurant hours & menus\n- Room service & housekeeping\n- Spa, pool & gym information\n- Taxi & transport bookings\n- WiFi, check-in/out & policies\n\nHow may I assist you?", "bot");
 }
 
-// ── Messages ──
+// MESSAGES
 function addMessage(text, type, serviceTag) {
     const chatBox = document.getElementById("chat-box");
     const typing = document.getElementById("typing");
@@ -302,7 +316,7 @@ function addMessage(text, type, serviceTag) {
     if (serviceTag) {
         const badge = document.createElement("div");
         badge.className = "service-badge";
-        badge.textContent = "✓ " + serviceTag + " request logged";
+        badge.textContent = serviceTag + " request logged";
         div.appendChild(badge);
     }
     chatBox.insertBefore(div, typing);
@@ -311,10 +325,7 @@ function addMessage(text, type, serviceTag) {
 
 function showTyping(show) {
     document.getElementById("typing").classList.toggle("visible", show);
-    if (show) {
-        const chatBox = document.getElementById("chat-box");
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    if (show) document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
 }
 
 async function sendMessage() {
@@ -338,10 +349,13 @@ async function sendMessage() {
         const data = await res.json();
         showTyping(false);
         addMessage(data.reply, "bot", data.service_request);
+
+        if (data.ask_room && !roomNumber) {
+            showRoomPrompt();
+        }
     } catch (err) {
         showTyping(false);
-        addMessage("I apologize — I'm having trouble connecting. Please contact the front desk for assistance.", "bot");
-        console.error(err);
+        addMessage("I apologize \u2014 connection issue. Please contact the front desk.", "bot");
     } finally {
         isSending = false;
         document.getElementById("send-btn").disabled = false;
@@ -354,26 +368,179 @@ function quickSend(text) {
     sendMessage();
 }
 
-// ── Keyboard ──
 document.getElementById("user-input").addEventListener("keydown", function(e) {
     if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
 });
 
-// ── Load hotel info into sidebar ──
-async function loadHotelInfo() {
+// LOAD HOTEL DATA
+async function loadHotelData() {
     try {
         const res = await fetch(API + "/knowledge/public");
-        const data = await res.json();
-        if (data.hotel_name) {
-            document.getElementById("sidebar-hotel-name").innerHTML = data.hotel_name.replace("&", "&amp;");
-            document.title = data.hotel_name + " — Digital Concierge";
+        const d = await res.json();
+
+        if (d.hotel_name) {
+            document.getElementById("hero-hotel-name").innerHTML = d.hotel_name.replace("&", "&amp;").replace(" Hotel", "<br>Hotel");
+            document.getElementById("nav-hotel-name").textContent = d.hotel_name.split(" ")[0] + " " + (d.hotel_name.split(" ")[1] || "");
+            document.getElementById("chat-title").textContent = "Concierge";
+            document.getElementById("footer-name").textContent = d.hotel_name;
+            document.title = d.hotel_name;
         }
-        if (data.check_in_time) document.getElementById("info-checkin").textContent = data.check_in_time;
-        if (data.check_out_time) document.getElementById("info-checkout").textContent = data.check_out_time;
-    } catch (e) { console.log("Could not load hotel info"); }
+        if (d.hotel_tagline) {
+            document.getElementById("hero-tagline").textContent = d.hotel_tagline;
+            document.getElementById("footer-tagline").textContent = d.hotel_tagline;
+        }
+        if (d.check_in_time) document.getElementById("h-checkin").textContent = formatTime(d.check_in_time);
+        if (d.check_out_time) document.getElementById("h-checkout").textContent = formatTime(d.check_out_time);
+
+        // Feature cards
+        const spa = d.spa || {};
+        if (spa.services) document.getElementById("feat-spa").textContent = spa.services;
+        if (spa.hours) document.getElementById("feat-spa").textContent += " \u2014 " + spa.hours;
+        const pool = d.pool || {};
+        if (pool.hours) document.getElementById("feat-pool").textContent = "Open " + pool.hours + (pool.location ? " at " + pool.location : "");
+        const gym = d.gym || {};
+        if (gym.hours) document.getElementById("feat-gym").textContent = gym.hours + (gym.location ? " \u2014 " + gym.location : "");
+        const parking = d.parking || {};
+        if (parking.type) document.getElementById("feat-parking").textContent = parking.type + (parking.rate ? ". " + parking.rate : "");
+        const wifi = d.wifi || {};
+        if (wifi.network) document.getElementById("feat-wifi").textContent = "Network: " + wifi.network;
+
+        buildDining(d);
+        buildAmenities(d);
+        buildInfo(d);
+        buildFooter(d);
+    } catch (e) { console.log("Could not load hotel info", e); }
 }
 
-window.onload = loadHotelInfo;
+function formatTime(t) {
+    if (!t) return "";
+    if (t.includes(":") && t.length <= 5) {
+        const [h, m] = t.split(":");
+        const hr = parseInt(h);
+        return (hr > 12 ? hr - 12 : hr) + ":" + m + (hr >= 12 ? " PM" : " AM");
+    }
+    return t;
+}
+
+function buildDining(d) {
+    const section = document.getElementById("dining");
+    const grid = document.getElementById("dining-grid");
+    if (!d.restaurants || d.restaurants.length === 0) {
+        section.style.display = "none";
+        return;
+    }
+    section.style.display = "block";
+    grid.innerHTML = d.restaurants.map(r => `
+        <div class="dining-card animate-in visible" ${r.photo ? `style="background-image: linear-gradient(to bottom, rgba(14,18,27,0.4), rgba(14,18,27,0.9)), url('${r.photo}'); background-size: cover; background-position: center;"` : ''}>
+            <div class="dining-name">${r.name}</div>
+            <div class="dining-cuisine">${r.cuisine}</div>
+            ${r.hours ? `<div class="dining-details"><strong>Hours:</strong> ${r.hours}</div>` : ''}
+            ${r.location ? `<div class="dining-details"><strong>Location:</strong> ${r.location}</div>` : ''}
+            ${r.menu_url ? `<a href="${r.menu_url}" target="_blank" rel="noopener" class="dining-menu-btn">View Menu</a>` : ''}
+        </div>
+    `).join("");
+}
+
+function buildAmenities(d) {
+    const grid = document.getElementById("amenities-grid");
+    const items = [];
+    const b = d.breakfast || {};
+    if (b.time) items.push({ title: "Breakfast", lines: [b.time, b.location, b.type].filter(Boolean), photo: b.photo });
+    const spa = d.spa || {};
+    if (spa.hours) items.push({ title: "Spa & Wellness", lines: [spa.hours, spa.location, spa.services].filter(Boolean), photo: spa.photo });
+    const pool = d.pool || {};
+    if (pool.hours) items.push({ title: "Swimming Pool", lines: [pool.hours, pool.location].filter(Boolean), photo: pool.photo });
+    const gym = d.gym || {};
+    if (gym.hours) items.push({ title: "Fitness Center", lines: [gym.hours, gym.location].filter(Boolean), photo: gym.photo });
+    const parking = d.parking || {};
+    if (parking.type) items.push({ title: "Parking", lines: [parking.type, parking.rate].filter(Boolean), photo: parking.photo });
+    const wifi = d.wifi || {};
+    if (wifi.network) items.push({ title: "WiFi", lines: ["Network: " + wifi.network, "Password: " + (wifi.password || "Ask front desk")].filter(Boolean), photo: wifi.photo });
+    const fd = d.front_desk || {};
+    if (fd.phone) items.push({ title: "Front Desk", lines: [fd.phone, fd.available].filter(Boolean), photo: fd.photo });
+    const em = d.emergency || {};
+    if (em.emergency_number) items.push({ title: "Emergency", lines: ["Call " + em.emergency_number, em.nearest_hospital, em.fire_assembly].filter(Boolean), photo: em.photo });
+
+    if (items.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;">Amenity details coming soon</p>';
+        return;
+    }
+
+    grid.innerHTML = items.map(it => `
+        <div class="amenity-card animate-in visible" ${it.photo ? `style="background-image: linear-gradient(to bottom, rgba(14,18,27,0.5), rgba(14,18,27,0.9)), url('${it.photo}'); background-size: cover; background-position: center; border-color: rgba(201,169,110,0.2);"` : ''}>
+            <h3 ${it.photo ? 'style="color:var(--gold);"' : ''}>${it.title}</h3>
+            ${it.lines.map(l => `<p ${it.photo ? 'style="color:rgba(255,255,255,0.85);"' : ''}>${l}</p>`).join("")}
+        </div>
+    `).join("");
+}
+
+function buildInfo(d) {
+    const grid = document.getElementById("info-grid");
+    const pol = d.policies || {};
+    const items = [];
+    if (d.check_in_time) items.push({ label: "Check-in", value: formatTime(d.check_in_time) });
+    if (d.check_out_time) items.push({ label: "Check-out", value: formatTime(d.check_out_time) });
+    if (pol.smoking) items.push({ label: "Smoking Policy", value: pol.smoking });
+    if (pol.pets) items.push({ label: "Pet Policy", value: pol.pets });
+    if (pol.cancellation) items.push({ label: "Cancellation", value: pol.cancellation });
+    if (items.length === 0) return;
+    grid.innerHTML = items.map(it => `
+        <div class="info-card">
+            <span class="info-label">${it.label}</span>
+            <span class="info-value">${it.value}</span>
+        </div>
+    `).join("");
+}
+
+function buildFooter(d) {
+    const fd = d.front_desk || {};
+    if (fd.phone) document.getElementById("footer-phone").textContent = fd.phone;
+    if (fd.available) document.getElementById("footer-availability").textContent = fd.available;
+
+    const social = d.social_links || {};
+    const socialEl = document.getElementById("footer-social");
+    const websiteEl = document.getElementById("footer-website");
+    let socialHTML = "";
+    if (social.instagram) socialHTML += '<a href="' + social.instagram + '" target="_blank" rel="noopener" class="footer-link">Instagram</a>';
+    if (social.facebook) socialHTML += '<a href="' + social.facebook + '" target="_blank" rel="noopener" class="footer-link">Facebook</a>';
+    if (social.twitter) socialHTML += '<a href="' + social.twitter + '" target="_blank" rel="noopener" class="footer-link">Twitter</a>';
+    socialEl.innerHTML = socialHTML || '<span class="footer-muted">-</span>';
+    if (social.website) websiteEl.innerHTML = '<a href="' + social.website + '" target="_blank" rel="noopener" class="footer-link">Visit Website</a>';
+}
+
+// LOAD GALLERY
+async function loadGallery() {
+    try {
+        const res = await fetch(API + "/gallery/public");
+        const d = await res.json();
+        const track = document.getElementById("gallery-track");
+        const placeholder = document.getElementById("gallery-placeholder");
+        if (!d.photos || d.photos.length === 0) { placeholder.style.display = ""; return; }
+        placeholder.style.display = "none";
+        const photos = d.photos;
+        track.innerHTML = photos.map(p => `
+            <div class="gallery-slide"><img src="${p.url}" alt="Hotel photo" loading="lazy"></div>
+        `).join("");
+    } catch (e) { console.log("Gallery load error", e); }
+}
+
+// SCROLL ANIMATIONS
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("visible"); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll(".feature-card, .amenity-card, .dining-card, .info-card, .section-header").forEach(el => {
+        el.classList.add("animate-in");
+        observer.observe(el);
+    });
+}
+
+// INIT
+window.onload = () => {
+    loadHotelData();
+    loadGallery();
+    setTimeout(initScrollAnimations, 100);
+};
 </script>
 </body>
 </html>

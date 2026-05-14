@@ -5,6 +5,7 @@ from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 from groq import Groq
 from functools import wraps
+from werkzeug.utils import secure_filename
 import json, os, jwt, sqlite3, uuid, html
 from datetime import datetime, timedelta
 
@@ -14,7 +15,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 app = Flask(__name__)
 CORS(app, origins=os.getenv("ALLOWED_ORIGINS", "*").split(","))
 
-limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "60 per hour"], storage_uri="memory://")
+limiter = Limiter(get_remote_address, app=app, default_limits=["2000 per day", "600 per hour"], storage_uri="memory://")
 
 SECRET_KEY = os.getenv("JWT_SECRET", "change-this-secret-key")
 ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin")
@@ -25,6 +26,12 @@ client = Groq(api_key=GROQ_KEY) if GROQ_KEY else None
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 KNOWLEDGE_FILE = os.path.join(BASE_DIR, "knowledge.json")
 DB_FILE = os.path.join(BASE_DIR, "hotel.db")
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif", "pdf"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ══════════════════════════════════════
 #  DATABASE
@@ -132,13 +139,13 @@ def sanitize(text, max_length=500):
 #  INTENT DETECTION
 # ══════════════════════════════════════
 INTENT_PATTERNS = {
-    "Housekeeping": ["towel", "linen", "bedsheet", "pillow", "blanket", "clean room", "housekeeping", "toiletries", "soap", "shampoo"],
-    "Room Service": ["room service", "order food", "in-room dining", "hungry", "send food", "meal to room"],
+    "Housekeeping": ["towel", "linen", "bedsheet", "pillow", "blanket", "clean room", "housekeeping", "toiletries", "soap", "shampoo", "water bottle"],
+    "Room Service": ["room service", "order food", "in-room dining", "hungry", "send food", "meal to room", "order a", "order some", "i want to order", "bring me", "burger", "pasta", "steak", "pizza", "coffee", "tea"],
     "Transport": ["taxi", "cab", "uber", "shuttle", "airport transfer", "pick up", "pickup", "drop off", "transport", "car hire"],
-    "Maintenance": ["repair", "broken", "not working", "fix", "leak", "leaking", "bulb", "ac not", "air conditioning", "heater", "plumbing"],
+    "Maintenance": ["repair", "broken", "not working", "fix", "leak", "leaking", "bulb", "ac not", "air conditioning", "heater", "plumbing", "tv not working", "wifi not working"],
     "Spa": ["book spa", "spa appointment", "massage booking", "facial booking"],
     "Laundry": ["laundry", "iron", "dry clean", "wash clothes", "pressing"],
-    "Wake-up Call": ["wake up call", "wake-up call", "morning call", "alarm call"],
+    "Wake-up Call": ["wake up call", "wake-up call", "morning call", "alarm call", "wake me up"],
 }
 
 def detect_request(msg):
@@ -152,15 +159,113 @@ def detect_request(msg):
 def service_response(category, room):
     r = f" to Room {room}" if room else ""
     responses = {
-        "Housekeeping": f"I've notified housekeeping — they'll attend{r} shortly. Is there anything specific you need?",
-        "Room Service": f"I've alerted our room service team{r}. They'll be in touch to take your order.",
-        "Transport": f"I'll arrange a taxi for you. Could you let me know your preferred pickup time and destination?",
-        "Maintenance": f"I've raised a maintenance request{r}. Our engineering team will be there as soon as possible.",
-        "Spa": f"I'd be happy to help book a spa session. Our spa is open during designated hours. Shall I check availability?",
-        "Laundry": f"I've notified our laundry service{r}. They'll collect your items shortly.",
-        "Wake-up Call": f"I can arrange a wake-up call{r}. What time would you like?",
+        "Housekeeping": f"I've notified housekeeping. They will attend to your request{r} shortly.",
+        "Room Service": f"I've sent your request to room service{r}. They will process your order and contact you if they need clarification.",
+        "Transport": f"I've logged your transport request{r}. Our front desk team will arrange this and confirm the details with you shortly.",
+        "Maintenance": f"I've raised a maintenance ticket{r}. Our engineering team will be there as soon as possible.",
+        "Spa": f"I've forwarded your spa inquiry. Our wellness team will reach out{r} to confirm availability and timing.",
+        "Laundry": f"I've notified our laundry service. They will collect your items{r} shortly.",
+        "Wake-up Call": f"I've recorded your wake-up call request{r}. Our team will ensure everything is set.",
     }
     return responses.get(category, f"I've logged your request{r}. Our team will assist you shortly.")
+
+# ══════════════════════════════════════
+#  LOCAL RAG FALLBACK
+# ══════════════════════════════════════
+def rag_answer(hotel, user_msg):
+    """Keyword-based retrieval from knowledge base — works without any AI API."""
+    msg = user_msg.lower()
+    
+    # WiFi
+    if any(w in msg for w in ["wifi", "wi-fi", "internet", "network", "password", "connect"]):
+        w = hotel.get("wifi", {})
+        if isinstance(w, dict) and w.get("network"):
+            return f"Our WiFi network is '{w['network']}' and the password is '{w.get('password', 'available at the front desk')}'."
+    
+    # Breakfast
+    if any(w in msg for w in ["breakfast", "morning meal", "buffet"]):
+        b = hotel.get("breakfast", {})
+        if isinstance(b, dict) and b.get("time"):
+            parts = [f"Breakfast is served {b['time']}"]
+            if b.get("location"): parts.append(f"at {b['location']}")
+            if b.get("type"): parts.append(f"({b['type']})")
+            return " ".join(parts) + "."
+    
+    # Pool
+    if any(w in msg for w in ["pool", "swim", "swimming"]):
+        p = hotel.get("pool", {})
+        if isinstance(p, dict) and p.get("hours"):
+            loc = f" at {p['location']}" if p.get("location") else ""
+            return f"The pool is open {p['hours']}{loc}."
+    
+    # Spa
+    if any(w in msg for w in ["spa", "massage", "facial", "sauna", "wellness", "steam", "treatment"]):
+        s = hotel.get("spa", {})
+        if isinstance(s, dict) and s.get("hours"):
+            parts = [f"Our spa is open {s['hours']}"]
+            if s.get("location"): parts.append(f"on the {s['location']}")
+            if s.get("services"): parts.append(f". Available services include: {s['services']}")
+            if s.get("description"): parts.append(f". {s['description']}")
+            return " ".join(parts) + " Please contact the front desk for reservations."
+    
+    # Gym / Fitness
+    if any(w in msg for w in ["gym", "fitness", "workout", "exercise", "weight"]):
+        g = hotel.get("gym", {})
+        if isinstance(g, dict) and g.get("hours"):
+            loc = f" on the {g['location']}" if g.get("location") else ""
+            return f"Our fitness center is {g['hours']}{loc}."
+    
+    # Check-in / Check-out
+    if any(w in msg for w in ["check-in", "checkin", "check in"]):
+        t = hotel.get("check_in_time", "")
+        if t: return f"Check-in time is {t}. Please approach the front desk upon arrival."
+    if any(w in msg for w in ["check-out", "checkout", "check out"]):
+        t = hotel.get("check_out_time", "")
+        if t: return f"Check-out time is {t}. Late check-out may be available upon request."
+    
+    # Parking
+    if any(w in msg for w in ["parking", "park", "valet", "car"]):
+        p = hotel.get("parking", {})
+        if isinstance(p, dict) and p.get("type"):
+            rate = f" {p['rate']}." if p.get("rate") else "."
+            return f"Parking: {p['type']}.{rate}"
+    
+    # Front desk
+    if any(w in msg for w in ["front desk", "reception", "phone", "call", "contact"]):
+        fd = hotel.get("front_desk", {})
+        if isinstance(fd, dict) and fd.get("phone"):
+            avail = f" ({fd['available']})" if fd.get("available") else ""
+            return f"You can reach our front desk at {fd['phone']}{avail}."
+    
+    # Emergency
+    if any(w in msg for w in ["emergency", "hospital", "fire", "ambulance", "help urgent"]):
+        em = hotel.get("emergency", {})
+        if isinstance(em, dict) and em.get("emergency_number"):
+            parts = [f"Emergency number: {em['emergency_number']}"]
+            if em.get("nearest_hospital"): parts.append(f"Nearest hospital: {em['nearest_hospital']}")
+            if em.get("fire_assembly"): parts.append(f"Fire assembly point: {em['fire_assembly']}")
+            return ". ".join(parts) + "."
+    
+    # Policies
+    if any(w in msg for w in ["smoking", "smoke"]):
+        pol = hotel.get("policies", {})
+        if isinstance(pol, dict) and pol.get("smoking"): return pol["smoking"]
+    if any(w in msg for w in ["pet", "dog", "cat", "animal"]):
+        pol = hotel.get("policies", {})
+        if isinstance(pol, dict) and pol.get("pets"): return pol["pets"]
+    if any(w in msg for w in ["cancel", "cancellation", "refund"]):
+        pol = hotel.get("policies", {})
+        if isinstance(pol, dict) and pol.get("cancellation"): return pol["cancellation"]
+    
+    # Restaurant
+    restaurants = hotel.get("restaurants", [])
+    if any(w in msg for w in ["restaurant", "dining", "eat", "food", "menu", "lunch", "dinner"]) and restaurants:
+        lines = []
+        for r in restaurants:
+            lines.append(f"{r.get('name','')}: {r.get('cuisine','')} — {r.get('hours','')}, {r.get('location','')}")
+        return "Our restaurants:\n" + "\n".join(lines)
+    
+    return None
 
 # ══════════════════════════════════════
 #  AI PROMPT BUILDER
@@ -265,46 +370,56 @@ def chat():
 
     # Detect service request
     category = detect_request(user_msg)
-    if category:
+    ask_room = False
+    if category and not room:
+        reply = f"I'd be happy to help with your {category.lower()} request. Could you please share your room number so we can assist you right away?"
+        ask_room = True
+    elif category:
         reply = service_response(category, room)
         db.execute("INSERT INTO service_requests (session_id, room_number, category, description) VALUES (?, ?, ?, ?)",
                    (session_id, room, category, user_msg))
     else:
-        # AI with conversation memory
-        prompt = build_prompt(hotel, user_msg)
-        history = get_history(session_id) if session_id else []
-        hotel_name = hotel.get("hotel_name", "our hotel")
+        # Try local RAG first
+        rag_reply = rag_answer(hotel, user_msg)
+        print(f"[DEBUG] user_msg={repr(user_msg)}, category={category}, rag_reply={repr(rag_reply)}")
+        if rag_reply:
+            reply = rag_reply
+        else:
+            # AI with conversation memory
+            prompt = build_prompt(hotel, user_msg)
+            history = get_history(session_id) if session_id else []
+            hotel_name = hotel.get("hotel_name", "our hotel")
 
-        messages = [{
-            "role": "system",
-            "content": (
-                f"You are a professional digital concierge for {hotel_name}. "
-                "RULES: Answer ONLY the guest's question using the hotel information provided. "
-                "Keep responses concise, warm, and professional. Do NOT introduce yourself repeatedly. "
-                "If you don't have the information, politely suggest contacting the front desk. "
-                "Never fabricate information not in the hotel data."
-            )
-        }]
-        messages.extend(history[-6:])
-        messages.append({"role": "user", "content": prompt})
-
-        try:
-            if not client:
-                reply = "I apologize, but I'm currently unavailable. Please contact the front desk for assistance."
-            else:
-                resp = client.chat.completions.create(
-                    model="llama-3.1-8b-instant", messages=messages, max_tokens=300, temperature=0.7
+            messages = [{
+                "role": "system",
+                "content": (
+                    f"You are a professional digital concierge for {hotel_name}. "
+                    "RULES: Answer ONLY the guest's question using the hotel information provided. "
+                    "Keep responses concise, warm, and professional. Do NOT introduce yourself repeatedly. "
+                    "If you don't have the information, politely suggest contacting the front desk. "
+                    "Never fabricate information not in the hotel data. Do NOT use emojis."
                 )
-                reply = resp.choices[0].message.content
-        except Exception as e:
-            print("AI Error:", e)
-            reply = "I apologize for the inconvenience. Please contact our front desk for immediate assistance."
+            }]
+            messages.extend(history[-6:])
+            messages.append({"role": "user", "content": prompt})
+
+            try:
+                if not client:
+                    reply = "I don't have specific information about that. Please contact our front desk for assistance."
+                else:
+                    resp = client.chat.completions.create(
+                        model="llama-3.1-8b-instant", messages=messages, max_tokens=300, temperature=0.7
+                    )
+                    reply = resp.choices[0].message.content
+            except Exception as e:
+                print("AI Error:", e)
+                reply = "I apologize for the inconvenience. Please contact our front desk for immediate assistance."
 
     # Log bot reply
     db.execute("INSERT INTO chat_logs (session_id, room_number, role, message) VALUES (?, ?, 'assistant', ?)",
                (session_id, room, reply))
     db.commit()
-    return jsonify({"reply": reply, "service_request": category})
+    return jsonify({"reply": reply, "service_request": category, "ask_room": ask_room})
 
 @app.route("/knowledge/public")
 def public_knowledge():
@@ -314,8 +429,22 @@ def public_knowledge():
         "check_in_time": h.get("check_in_time", ""), "check_out_time": h.get("check_out_time", ""),
         "breakfast": h.get("breakfast", {}), "restaurants": h.get("restaurants", []),
         "pool": h.get("pool", {}), "spa": h.get("spa", {}), "gym": h.get("gym", {}),
+        "wifi": h.get("wifi", {}), "parking": h.get("parking", {}),
+        "front_desk": h.get("front_desk", {}), "emergency": h.get("emergency", {}),
+        "policies": h.get("policies", {}),
         "services": h.get("services", []),
+        "social_links": h.get("social_links", {}),
     })
+
+@app.route("/gallery/public")
+@limiter.exempt
+def public_gallery():
+    photos = []
+    if os.path.exists(UPLOAD_DIR):
+        for f in sorted(os.listdir(UPLOAD_DIR)):
+            if allowed_file(f) and not f.lower().endswith(".pdf"):
+                photos.append({"filename": f, "url": f"/uploads/{f}"})
+    return jsonify({"photos": photos})
 
 # ══════════════════════════════════════
 #  ADMIN ROUTES
@@ -400,6 +529,69 @@ def update_request(req_id):
     db.commit()
     return jsonify({"status": "updated"})
 
+@app.route("/admin/requests/<int:req_id>", methods=["DELETE"])
+@require_admin
+def delete_request(req_id):
+    db = get_db()
+    db.execute("DELETE FROM service_requests WHERE id=?", (req_id,))
+    db.execute("INSERT INTO admin_logs (action, details) VALUES ('request_delete', ?)",
+               (json.dumps({"id": req_id}),))
+    db.commit()
+    return jsonify({"status": "deleted"})
+
+@app.route("/admin/requests/clear", methods=["DELETE"])
+@require_admin
+def clear_requests():
+    db = get_db()
+    db.execute("DELETE FROM service_requests")
+    db.execute("INSERT INTO admin_logs (action, details) VALUES ('requests_cleared', '{}')")
+    db.commit()
+    return jsonify({"status": "cleared"})
+
+@app.route("/admin/gallery", methods=["GET"])
+@require_admin
+def admin_gallery():
+    photos = []
+    if os.path.exists(UPLOAD_DIR):
+        for f in sorted(os.listdir(UPLOAD_DIR)):
+            if allowed_file(f) and not f.lower().endswith(".pdf"):
+                photos.append({"filename": f, "url": f"/uploads/{f}"})
+    return jsonify({"photos": photos})
+
+@app.route("/admin/gallery", methods=["POST"])
+@require_admin
+def upload_photo():
+    if "photo" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    file = request.files["photo"]
+    if file.filename == "" or not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type"}), 400
+    filename = secure_filename(f"{uuid.uuid4().hex[:8]}_{file.filename}")
+    file.save(os.path.join(UPLOAD_DIR, filename))
+    return jsonify({"status": "uploaded", "filename": filename, "url": f"/uploads/{filename}"})
+
+@app.route("/admin/gallery/<filename>", methods=["DELETE"])
+@require_admin
+def delete_photo(filename):
+    filepath = os.path.join(UPLOAD_DIR, secure_filename(filename))
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    return jsonify({"status": "deleted"})
+
+@app.route("/admin/gallery/clear", methods=["DELETE"])
+@require_admin
+def clear_gallery():
+    if os.path.exists(UPLOAD_DIR):
+        for f in os.listdir(UPLOAD_DIR):
+            filepath = os.path.join(UPLOAD_DIR, f)
+            if os.path.isfile(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception:
+                    pass
+    return jsonify({"status": "cleared"})
+
+
 @app.route("/admin/stats")
 @require_admin
 def get_stats():
@@ -420,10 +612,17 @@ def get_stats():
 FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
 
 @app.route("/")
+@limiter.exempt
 def serve_index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
+@app.route("/uploads/<path:filename>")
+@limiter.exempt
+def serve_upload(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
+
 @app.route("/<path:filename>")
+@limiter.exempt
 def serve_static(filename):
     return send_from_directory(FRONTEND_DIR, filename)
 

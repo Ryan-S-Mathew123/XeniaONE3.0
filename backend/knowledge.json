@@ -6,77 +6,68 @@
   "breakfast": {
     "time": "7:00 AM - 10:30 AM",
     "location": "The Grand Pavilion - Ground Floor",
-    "type": "International Buffet"
+    "type": "International Buffet",
+    "photo": "/uploads/12b32d23_download_5.jpg"
   },
-  "restaurants": [
-    {
-      "name": "The Grand Pavilion",
-      "cuisine": "International Buffet",
-      "hours": "7:00 AM - 10:30 PM",
-      "location": "Ground Floor"
-    },
-    {
-      "name": "Sakura",
-      "cuisine": "Japanese & Asian Fusion",
-      "hours": "12:00 PM - 10:00 PM",
-      "location": "2nd Floor"
-    },
-    {
-      "name": "The Terrace Lounge",
-      "cuisine": "Bar & Light Bites",
-      "hours": "4:00 PM - 12:00 AM",
-      "location": "Rooftop"
-    }
-  ],
   "wifi": {
     "network": "GrandHorizon-Guest",
-    "password": "Welcome2024"
+    "password": "Welcome@2026",
+    "photo": "/uploads/1c2118e9_download_7.jpg"
   },
   "pool": {
     "hours": "6:00 AM - 9:00 PM",
-    "location": "Rooftop - 15th Floor"
+    "location": "Rooftop - 15th Floor",
+    "photo": "/uploads/f7ac4680_download_2.jpg"
   },
   "spa": {
     "hours": "9:00 AM - 9:00 PM",
     "location": "3rd Floor",
-    "services": "Swedish Massage, Deep Tissue, Facial, Sauna, Steam Room, Aromatherapy"
+    "services": "Swedish Massage, Deep Tissue, Facial, Sauna, Steam Room, Aromatherapy",
+    "description": "",
+    "photo": "/uploads/733ff05a_download.jpg"
   },
   "gym": {
     "hours": "Open 24 Hours",
-    "location": "4th Floor"
+    "location": "4th Floor",
+    "photo": "/uploads/2150d07b_download_1.jpg"
   },
   "parking": {
     "type": "Valet & Self-Parking Available",
-    "rate": "Complimentary for hotel guests"
+    "rate": "Complimentary for hotel guests",
+    "photo": "/uploads/d20ab5d1_download_6.jpg"
   },
   "front_desk": {
     "phone": "+91-9876-543210",
-    "available": "24/7"
+    "available": "24/7",
+    "photo": "/uploads/4b10d600_download_4.jpg"
   },
   "emergency": {
     "fire_assembly": "Hotel Main Entrance - Ground Floor",
     "nearest_hospital": "City General Hospital - 2 km",
-    "emergency_number": "112"
+    "emergency_number": "112",
+    "photo": "/uploads/d2329533_download_8.jpg"
   },
   "policies": {
     "smoking": "Non-smoking property. Designated smoking area at the Ground Floor terrace.",
-    "pets": "Pet-friendly rooms available on request. Additional surcharge of ₹1500/night applies.",
+    "pets": "Pet-friendly rooms available on request. Additional surcharge of \u20b91500/night applies.",
     "cancellation": "Free cancellation up to 24 hours before check-in. Late cancellations are charged one night's rate."
   },
-  "services": [
-    "24/7 Room Service",
-    "Laundry & Dry Cleaning",
-    "Airport Shuttle",
-    "Concierge Desk",
-    "Currency Exchange",
-    "Business Center",
-    "Baby Sitting (on request)",
-    "Doctor on Call"
+  "social_links": {
+    "website": "grandhotels.com",
+    "instagram": "https://instagram.com/grandhotels",
+    "facebook": "https://facebook.com/grandhotels",
+    "twitter": "https://x.com/grandhotels"
+  },
+  "restaurants": [
+    {
+      "name": "The Grand Pavillion",
+      "cuisine": "Continetal and Indian",
+      "hours": "7:00 AM - 11:00 PM",
+      "location": "Ground Floor",
+      "photo": "/uploads/aed88395_download_3.jpg",
+      "menu_url": "/uploads/4acf3058_SG_M_Apr_26.pdf"
+    }
   ],
-  "nearby_attractions": [
-    { "name": "City Heritage Museum", "distance": "1.5 km" },
-    { "name": "Central Market & Bazaar", "distance": "0.8 km" },
-    { "name": "Royal Heritage Fort", "distance": "3 km" },
-    { "name": "Botanical Garden", "distance": "2 km" }
-  ]
+  "services": [],
+  "nearby_attractions": []
 }

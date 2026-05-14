@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Console — Hotel Concierge</title>
+    <title>Admin Console &mdash; Hotel Concierge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
 </head>
@@ -12,7 +12,6 @@
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="login-overlay">
     <div class="login-card">
-        <div class="login-icon">🔐</div>
         <h2>Admin Console</h2>
         <p>Sign in to manage hotel operations</p>
         <input type="text" id="login-user" placeholder="Username" autocomplete="off">
@@ -32,17 +31,18 @@
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
-                <span>✦</span>
+                <span>&#10022;</span>
                 <h3>Hotel Admin</h3>
             </div>
-            <div class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</div>
-            <div class="nav-item" data-tab="knowledge" onclick="switchTab('knowledge')">📝 Knowledge Base</div>
-            <div class="nav-item" data-tab="requests" onclick="switchTab('requests')">🛎️ Service Requests</div>
-            <div class="nav-item" data-tab="chats" onclick="switchTab('chats')">💬 Chat Logs</div>
+            <div class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</div>
+            <div class="nav-item" data-tab="knowledge" onclick="switchTab('knowledge')">Knowledge Base</div>
+            <div class="nav-item" data-tab="gallery" onclick="switchTab('gallery')">Photo Gallery</div>
+            <div class="nav-item" data-tab="requests" onclick="switchTab('requests')">Service Requests</div>
+            <div class="nav-item" data-tab="chats" onclick="switchTab('chats')">Chat Logs</div>
         </div>
         <div>
-            <div class="nav-item" onclick="logout()">🚪 Logout</div>
-            <div class="sidebar-footer">Hotel AI Concierge v2.0</div>
+            <div class="nav-item" onclick="logout()">Logout</div>
+            <div class="sidebar-footer">XeniaOne Concierge v3.0</div>
         </div>
     </div>
 
@@ -67,63 +67,144 @@
             <h1>Knowledge Base</h1>
             <div class="form-grid">
                 <div class="form-section">
-                    <h3>🏨 General</h3>
+                    <h3>General</h3>
                     <label>Hotel Name</label><input id="k-hotel_name">
                     <label>Tagline</label><input id="k-hotel_tagline">
                     <label>Check-in Time</label><input id="k-check_in_time" type="time">
                     <label>Check-out Time</label><input id="k-check_out_time" type="time">
                 </div>
                 <div class="form-section">
-                    <h3>🍳 Breakfast</h3>
+                    <h3>Breakfast</h3>
                     <label>Time</label><input id="k-breakfast_time" placeholder="e.g. 7:00 AM - 10:30 AM">
                     <label>Location</label><input id="k-breakfast_location">
                     <label>Type</label><input id="k-breakfast_type" placeholder="e.g. International Buffet">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-breakfast_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-breakfast_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-breakfast_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-breakfast_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>📶 WiFi</h3>
+                    <h3>WiFi</h3>
                     <label>Network Name</label><input id="k-wifi_network">
                     <label>Password</label><input id="k-wifi_password">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-wifi_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-wifi_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-wifi_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-wifi_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>🏊 Pool</h3>
+                    <h3>Pool</h3>
                     <label>Hours</label><input id="k-pool_hours" placeholder="e.g. 6:00 AM - 9:00 PM">
                     <label>Location</label><input id="k-pool_location">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-pool_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-pool_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-pool_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-pool_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>💆 Spa</h3>
+                    <h3>Spa &amp; Wellness</h3>
                     <label>Hours</label><input id="k-spa_hours">
                     <label>Location</label><input id="k-spa_location">
                     <label>Services</label><input id="k-spa_services" placeholder="Massage, Facial, Sauna...">
+                    <label>Description</label><input id="k-spa_description" placeholder="Brief description for the website">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-spa_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-spa_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-spa_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-spa_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>🏋️ Gym</h3>
+                    <h3>Gym</h3>
                     <label>Hours</label><input id="k-gym_hours" placeholder="e.g. 24 Hours">
                     <label>Location</label><input id="k-gym_location">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-gym_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-gym_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-gym_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-gym_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>🅿️ Parking</h3>
+                    <h3>Parking</h3>
                     <label>Type</label><input id="k-parking_type">
                     <label>Rate</label><input id="k-parking_rate">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-parking_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-parking_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-parking_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-parking_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>📞 Front Desk</h3>
+                    <h3>Front Desk</h3>
                     <label>Phone</label><input id="k-frontdesk_phone">
                     <label>Availability</label><input id="k-frontdesk_available" placeholder="e.g. 24/7">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-frontdesk_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-frontdesk_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-frontdesk_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-frontdesk_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>🚨 Emergency</h3>
+                    <h3>Emergency</h3>
                     <label>Fire Assembly Point</label><input id="k-emergency_assembly">
                     <label>Nearest Hospital</label><input id="k-emergency_hospital">
                     <label>Emergency Number</label><input id="k-emergency_number">
+                    <label>Photo</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input id="k-emergency_photo" placeholder="Photo URL" readonly style="flex:1;">
+                        <input type="file" id="f-emergency_photo" accept="image/*" style="display:none;" onchange="uploadFeaturePhoto(this, 'k-emergency_photo')">
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="document.getElementById('f-emergency_photo').click()">Upload</button>
+                    </div>
                 </div>
                 <div class="form-section">
-                    <h3>📋 Policies</h3>
+                    <h3>Policies</h3>
                     <label>Smoking</label><input id="k-policy_smoking">
                     <label>Pets</label><input id="k-policy_pets">
                     <label>Cancellation</label><input id="k-policy_cancellation">
                 </div>
+                <div class="form-section">
+                    <h3>Social &amp; Website</h3>
+                    <label>Website URL</label><input id="k-social_website" placeholder="https://...">
+                    <label>Instagram URL</label><input id="k-social_instagram" placeholder="https://instagram.com/...">
+                    <label>Facebook URL</label><input id="k-social_facebook" placeholder="https://facebook.com/...">
+                    <label>Twitter / X URL</label><input id="k-social_twitter" placeholder="https://x.com/...">
+                </div>
+                <div class="form-section" style="grid-column: 1 / -1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3>Restaurants &amp; Dining</h3>
+                        <button type="button" class="save-btn" style="width:auto; padding:8px 16px; margin:0;" onclick="addRestaurant()">+ Add Restaurant</button>
+                    </div>
+                    <div id="restaurants-container" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Dynamic restaurant blocks go here -->
+                    </div>
+                </div>
             </div>
-            <button class="save-btn" onclick="saveKnowledge()">💾 Save All Changes</button>
+            <button class="save-btn" onclick="saveKnowledge()">Save All Changes</button>
+        </div>
+
+        <!-- GALLERY TAB -->
+        <div class="tab-content" id="tab-gallery">
+            <div class="tab-header">
+                <h1>Photo Gallery</h1>
+                <div class="upload-area" style="display:flex; gap:10px; align-items:center;">
+                    <button class="save-btn" style="background:#ef4444; border:none; width:auto; padding:0 20px; margin:0;" onclick="clearAllPhotos()">Clear All Photos</button>
+                    <input type="file" id="photo-upload" accept="image/*" multiple style="display:none;" onchange="uploadPhotos(this.files)">
+                    <button class="save-btn" style="width:auto; padding:0 20px; margin:0;" onclick="document.getElementById('photo-upload').click()">Upload Photos</button>
+                </div>
+            </div>
+            <p class="gallery-hint">Upload hotel photos here. They will appear in the scrolling gallery on the main website.</p>
+            <div class="photo-grid" id="photo-grid">
+                <div class="photo-empty">No photos uploaded yet. Click "Upload Photos" to get started.</div>
+            </div>
         </div>
 
         <!-- REQUESTS TAB -->
@@ -135,11 +216,12 @@
                     <button class="filter-btn" onclick="loadRequests('pending');setActiveFilter(this)">Pending</button>
                     <button class="filter-btn" onclick="loadRequests('in_progress');setActiveFilter(this)">In Progress</button>
                     <button class="filter-btn" onclick="loadRequests('completed');setActiveFilter(this)">Completed</button>
+                    <button class="filter-btn danger-btn" onclick="clearAllRequests()">Clear All</button>
                 </div>
             </div>
             <div class="table-wrap">
                 <table>
-                    <thead><tr><th>ID</th><th>Room</th><th>Category</th><th>Description</th><th>Status</th><th>Assigned</th><th>Time</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Room</th><th>Category</th><th>Description</th><th>Status</th><th>Time</th><th>Actions</th></tr></thead>
                     <tbody id="requests-body"></tbody>
                 </table>
             </div>
@@ -150,7 +232,7 @@
             <div class="tab-header">
                 <h1>Chat Logs</h1>
                 <div class="filter-group">
-                    <input type="text" id="chat-room-filter" placeholder="Filter by room..." style="padding:8px 14px;border-radius:8px;border:1px solid #2a2f3e;background:#161a23;color:#f0ece4;font-size:13px;width:160px;">
+                    <input type="text" id="chat-room-filter" placeholder="Filter by room..." class="filter-input">
                     <button class="filter-btn active" onclick="loadChats()">Search</button>
                 </div>
             </div>

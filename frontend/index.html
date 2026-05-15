@@ -200,7 +200,10 @@
             <button class="room-change-btn" onclick="showRoomPrompt()">Set Room</button>
         </div>
         <div class="chat-messages" id="chat-box">
-            <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+            <div class="typing-indicator" id="typing">
+                <span class="typing-text">Nova is typing</span>
+                <div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+            </div>
         </div>
         <div class="chat-quick" id="quick-actions">
             <button class="quick-btn" onclick="quickSend('What time is breakfast?')">Breakfast</button>
@@ -209,6 +212,10 @@
             <button class="quick-btn" onclick="quickSend('Tell me about the spa')">Spa</button>
             <button class="quick-btn" onclick="quickSend('I need fresh towels')">Towels</button>
             <button class="quick-btn" onclick="quickSend('Book a taxi')">Taxi</button>
+            <button class="quick-btn" onclick="quickSend('Send me some towels')">Send towels</button>
+            <button class="quick-btn" onclick="quickSend('Book me a spa session for deep tissue')">Deep tissue massage</button>
+            <button class="quick-btn" onclick="quickSend('Come do my laundry')">Laundry</button>
+            <button class="quick-btn" onclick="quickSend('Make my bed')">Make bed</button>
         </div>
         <div class="chat-input-area">
             <input id="user-input" placeholder="Ask anything about your stay..." autocomplete="off">
@@ -310,15 +317,29 @@ async function initSession() {
 function addMessage(text, type, serviceTag) {
     const chatBox = document.getElementById("chat-box");
     const typing = document.getElementById("typing");
+    
     const div = document.createElement("div");
-    div.classList.add("msg", type);
-    div.textContent = text;
+    div.classList.add("msg-container", type);
+
+    const msgBubble = document.createElement("div");
+    msgBubble.classList.add("msg", type);
+    msgBubble.textContent = text;
+    
     if (serviceTag) {
         const badge = document.createElement("div");
         badge.className = "service-badge";
         badge.textContent = serviceTag + " request logged";
-        div.appendChild(badge);
+        msgBubble.appendChild(badge);
     }
+    
+    const timeSpan = document.createElement("div");
+    timeSpan.classList.add("msg-time");
+    const now = new Date();
+    timeSpan.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    div.appendChild(msgBubble);
+    div.appendChild(timeSpan);
+    
     chatBox.insertBefore(div, typing);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -340,6 +361,8 @@ async function sendMessage() {
     document.getElementById("send-btn").disabled = true;
     showTyping(true);
 
+    const startTime = Date.now();
+
     try {
         const res = await fetch(API + "/chat", {
             method: "POST",
@@ -347,6 +370,13 @@ async function sendMessage() {
             body: JSON.stringify({ message: msg, session_id: sessionId, room_number: roomNumber })
         });
         const data = await res.json();
+        
+        // Ensure at least 1.5 seconds have passed to show the typing indicator
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 1500) {
+            await new Promise(resolve => setTimeout(resolve, 1500 - elapsed));
+        }
+
         showTyping(false);
         addMessage(data.reply, "bot", data.service_request);
 

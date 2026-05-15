@@ -139,13 +139,32 @@ def sanitize(text, max_length=500):
 #  INTENT DETECTION
 # ══════════════════════════════════════
 INTENT_PATTERNS = {
-    "Housekeeping": ["towel", "linen", "bedsheet", "pillow", "blanket", "clean room", "housekeeping", "toiletries", "soap", "shampoo", "water bottle"],
-    "Room Service": ["room service", "order food", "in-room dining", "hungry", "send food", "meal to room", "order a", "order some", "i want to order", "bring me", "burger", "pasta", "steak", "pizza", "coffee", "tea"],
+    "Housekeeping": [
+        "towel", "linen", "bedsheet", "pillow", "blanket", "clean room", "housekeeping", "toiletries", "soap", "shampoo", 
+        "water bottle", "make bed", "make my bed", "toothbrush", "toothpaste", "razor", "comb", "shower gel", 
+        "vacuum", "trash", "baby crib", "pack-and-play", "high chair", "iron", "ironing board", 
+        "clothes steamer", "medical refrigerator", "small fridge", "medication"
+    ],
+    "Room Service": [
+        "room service", "order food", "in-room dining", "hungry", "send food", "meal to room", "order a", "order some", "i want to order", 
+        "burger", "pasta", "steak", "pizza", "coffee", "tea", "salt", "sugar", "breakfast", "lunch", "dinner", "late-night snack", "snack",
+        "alcoholic beverage", "bottled water", "gluten-free", "vegan", "allergen-free", "extra plate", "cutlery", "wine glass", "ice bucket"
+    ],
+    "Front Desk": [
+        "wall adapter", "usb cable", "charger", "international adapter"
+    ],
+    "Luggage Assistance": [
+        "bellhop", "carry bag", "luggage", "checkout bags"
+    ],
     "Transport": ["taxi", "cab", "uber", "shuttle", "airport transfer", "pick up", "pickup", "drop off", "transport", "car hire"],
-    "Maintenance": ["repair", "broken", "not working", "fix", "leak", "leaking", "bulb", "ac not", "air conditioning", "heater", "plumbing", "tv not working", "wifi not working"],
-    "Spa": ["book spa", "spa appointment", "massage booking", "facial booking"],
-    "Laundry": ["laundry", "iron", "dry clean", "wash clothes", "pressing"],
-    "Wake-up Call": ["wake up call", "wake-up call", "morning call", "alarm call", "wake me up"],
+    "Maintenance": [
+        "repair", "broken", "not working", "fix", "leak", "leaking", "bulb", "ac not", "air conditioning", "heater", "plumbing", 
+        "tv not working", "wifi not working", "broken light", "tv issue", "ac malfunction"
+    ],
+    "Spa": ["book spa", "spa appointment", "massage booking", "facial booking", "massage", "deep tissue"],
+    "Laundry": ["laundry", "dry clean", "wash clothes", "pressing", "dry cleaning", "washing"],
+    "Wake-up Call": ["wake up call", "wake-up call", "morning call", "alarm call", "wake me up", "ring my room"],
+    "General Request": ["send me", "bring me", "can you send", "please send", "could you bring", "can i get a", "can i get some", "i need some", "i need a"],
 }
 
 def detect_request(msg):
@@ -161,13 +180,16 @@ def service_response(category, room):
     responses = {
         "Housekeeping": f"I've notified housekeeping. They will attend to your request{r} shortly.",
         "Room Service": f"I've sent your request to room service{r}. They will process your order and contact you if they need clarification.",
+        "Front Desk": f"I've informed the front desk. They will assist you with your request{r} shortly.",
+        "Luggage Assistance": f"I've notified the bell desk. A bellhop will be sent{r} to assist with your luggage.",
         "Transport": f"I've logged your transport request{r}. Our front desk team will arrange this and confirm the details with you shortly.",
         "Maintenance": f"I've raised a maintenance ticket{r}. Our engineering team will be there as soon as possible.",
         "Spa": f"I've forwarded your spa inquiry. Our wellness team will reach out{r} to confirm availability and timing.",
         "Laundry": f"I've notified our laundry service. They will collect your items{r} shortly.",
         "Wake-up Call": f"I've recorded your wake-up call request{r}. Our team will ensure everything is set.",
+        "General Request": f"Service request accepted. We have logged your request{r} and will send someone shortly.",
     }
-    return responses.get(category, f"I've logged your request{r}. Our team will assist you shortly.")
+    return responses.get(category, f"Service request accepted. We have logged your request{r} and will send someone shortly.")
 
 # ══════════════════════════════════════
 #  LOCAL RAG FALLBACK

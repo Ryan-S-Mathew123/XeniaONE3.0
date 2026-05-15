@@ -1,0 +1,74 @@
+# Comprehensive List of Questions & Requests for XeniaONE Digital Concierge
+
+## Room Service & Dining
+1. "Can you send me some salt and sugar?"
+2. "I'd like to order a late-night snack."
+3. "Can you send a gluten-free meal to my room?"
+4. "Please bring me an alcoholic beverage and some bottled water."
+5. "I'd like to order a burger and fries for lunch."
+6. "Can I get some extra plates, cutlery, and wine glasses?"
+7. "Could you send up an ice bucket?"
+
+## Housekeeping & Room Logistics
+8. "Send me some towels, please."
+9. "Make my bed."
+10. "I need extra pillows and a blanket."
+11. "Can someone clean my room now, including vacuuming?"
+12. "Please bring some extra toiletries (toothbrush, toothpaste, shower gel) to my room."
+13. "Can you send someone to empty the trash?"
+14. "Can I get an iron and ironing board sent up?"
+15. "I need a clothes steamer."
+16. "Do you have a baby crib or pack-and-play I can use?"
+17. "We need a high chair for our baby."
+18. "Can I get a medical refrigerator for temperature-sensitive medication?"
+
+## Laundry Services
+19. "Come do my laundry."
+20. "I need dry cleaning pickup."
+21. "Can you wash and press my suit?"
+
+## Front Desk & Concierge
+22. "I need an international wall adapter."
+23. "Could you bring me a USB cable or a phone charger?"
+24. "Please ring my room at 6 AM for a wake-up call."
+25. "I need a bellhop to help carry my bags during checkout."
+26. "Can you recommend some local tourist attractions?"
+
+## Maintenance Fixes
+27. "My AC is not working, can you send maintenance?"
+28. "My TV has an issue and the screen is black."
+29. "There is a broken light in the bathroom."
+30. "The sink is leaking."
+
+## Spa & Wellness
+31. "Book me a spa session for deep tissue massage."
+32. "What are the spa timings?"
+33. "I'd like to reserve a facial treatment for tomorrow afternoon."
+
+## Fitness & Pool
+34. "What time does the gym open?"
+35. "Is the infinity pool heated?"
+36. "What are the pool timings?"
+
+## Transportation
+37. "Book a taxi to the airport for tomorrow at 6 AM."
+38. "Do you offer an airport shuttle service?"
+39. "Where can I rent a car nearby?"
+
+## Hotel Policies & General Information
+40. "What is the WiFi password?"
+41. "What time is check-in and check-out?"
+42. "Can I request a late check-out for 2 PM?"
+43. "What is the hotel's pet policy? Can I bring my dog?"
+44. "Is smoking allowed in the rooms or on the balcony?"
+45. "What is the cancellation policy?"
+
+## RAG/Knowledge Base Specific (Tests Admin dynamic updates)
+46. "Who is the general manager of the hotel?"
+47. "When was this hotel built?"
+48. "Are there any special events happening at the hotel tonight?"
+49. "Do you have an ATM on the premises?"
+50. "What's the dress code for the signature dining restaurant?"
+
+---
+Note: Use the Admin Panel to update the knowledge base with details for the RAG-specific questions so the bot learns the answers dynamically!

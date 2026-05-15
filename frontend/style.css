@@ -382,18 +382,32 @@ a { color: inherit; text-decoration: none; }
     display: flex; flex-direction: column; gap: 12px;
     scroll-behavior: smooth;
 }
+.msg-container {
+    display: flex; flex-direction: column; max-width: 80%;
+    animation: msgIn 0.3s ease; gap: 4px;
+}
+.msg-container.user {
+    margin-left: auto; align-items: flex-end;
+}
+.msg-container.bot {
+    align-items: flex-start;
+}
 .msg {
-    max-width: 80%; padding: 12px 16px; border-radius: 16px;
-    font-size: 13px; line-height: 1.6; animation: msgIn 0.3s ease;
+    padding: 12px 16px; border-radius: 16px;
+    font-size: 13px; line-height: 1.6;
     white-space: pre-wrap; word-wrap: break-word;
 }
 .msg.user {
     background: var(--accent-gradient); color: var(--bg);
-    margin-left: auto; border-bottom-right-radius: 4px; font-weight: 500;
+    border-bottom-right-radius: 4px; font-weight: 500;
 }
 .msg.bot {
     background: var(--surface-2); color: var(--text);
     border: 1px solid var(--border); border-bottom-left-radius: 4px;
+}
+.msg-time {
+    font-size: 10px; color: var(--text-muted);
+    padding: 0 4px;
 }
 .service-badge {
     display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 10px;
@@ -402,13 +416,19 @@ a { color: inherit; text-decoration: none; }
 
 /* Typing */
 .typing-indicator {
-    display: none; align-items: center; gap: 4px; padding: 12px 16px;
+    display: none; align-items: center; gap: 8px; padding: 12px 16px;
     background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 16px; border-bottom-left-radius: 4px; max-width: 70px;
+    border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; max-width: 80%;
 }
 .typing-indicator.visible { display: flex; }
+.typing-text {
+    font-size: 12px; color: var(--gold-light); font-weight: 500;
+}
+.typing-dots {
+    display: flex; gap: 4px; align-items: center;
+}
 .typing-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+    width: 5px; height: 5px; border-radius: 50%; background: var(--gold);
     animation: typingBounce 1.4s infinite ease-in-out;
 }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -416,9 +436,12 @@ a { color: inherit; text-decoration: none; }
 
 /* Quick Actions */
 .chat-quick {
-    padding: 8px 20px 4px; display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 8px 20px 4px; display: flex; gap: 8px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: none;
 }
+.chat-quick::-webkit-scrollbar { display: none; }
 .quick-btn {
+    flex-shrink: 0;
     padding: 6px 12px; border: 1px solid var(--border); border-radius: 16px;
     background: transparent; color: var(--text-muted); font-size: 12px;
     cursor: pointer; transition: var(--transition); font-family: 'Inter', sans-serif;
